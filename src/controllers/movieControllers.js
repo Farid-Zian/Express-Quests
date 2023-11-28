@@ -1,28 +1,28 @@
 const movies = [
-  {
-    id: 1,
-    title: "Citizen Kane",
-    director: "Orson Wells",
-    year: "1941",
-    color: false,
-    duration: 120,
-  },
-  {
-    id: 2,
-    title: "The Godfather",
-    director: "Francis Ford Coppola",
-    year: "1972",
-    color: true,
-    duration: 180,
-  },
-  {
-    id: 3,
-    title: "Pulp Fiction",
-    director: "Quentin Tarantino",
-    year: "1994",
-    color: true,
-    duration: 180,
-  },
+	{
+		id: 1,
+		title: "Citizen Kane",
+		director: "Orson Wells",
+		year: "1941",
+		color: false,
+		duration: 120,
+	},
+	{
+		id: 2,
+		title: "The Godfather",
+		director: "Francis Ford Coppola",
+		year: "1972",
+		color: true,
+		duration: 180,
+	},
+	{
+		id: 3,
+		title: "Pulp Fiction",
+		director: "Quentin Tarantino",
+		year: "1994",
+		color: true,
+		duration: 180,
+	},
 ];
 
 const database = require("../../database");
@@ -31,7 +31,7 @@ const getMovies = (req, res) => {
 	database
 		.query("select * from movies")
 		.then(([movies]) => {
-			res.json(movies); 
+			res.json(movies);
 		})
 		.catch((err) => {
 			console.error(err);
@@ -40,33 +40,50 @@ const getMovies = (req, res) => {
 };
 
 const getMovieById = (req, res) => {
-  const id = parseInt(req.params.id);
+	const id = parseInt(req.params.id);
 
-  database
-    .query("select * from movies where id = ?", [id])
-    .then(([movies]) => {
-      if (movies[0] != null) {
-        res.json(movies[0]);
-      } else {
-        res.sendStatus(404);
-      }
-    })
-    .catch((err) => {
-      console.error(err);
-      res.sendStatus(500);
-    });
+	database
+		.query("select * from movies where id = ?", [id])
+		.then(([movies]) => {
+			if (movies[0] != null) {
+				res.json(movies[0]);
+			} else {
+				res.sendStatus(404);
+			}
+		})
+		.catch((err) => {
+			console.error(err);
+			res.sendStatus(500);
+		});
 };
 
-  // const movie = movies.find((movie) => movie.id === id);
+const postMovie = (req, res) => {
+	const { title, director, year, color, duration } = req.body;
 
-  // if (movie != null) {
-  //   res.json(movie);
-  // } else {
-  //   res.status(404).send("Not Found");
-  // }
+  database
+		.query(
+			"INSERT INTO movies(title, director, year, color, duration) VALUES (?, ?, ?, ?, ?)",
+			[title, director, year, color, duration]
+		)
+		.then(([result]) => {
+			res.status(201).send({ id: result.insertId });
+		})
+		.catch((err) => {
+			console.error(err);
+			res.sendStatus(500);
+		});
+};
 
+// const movie = movies.find((movie) => movie.id === id);
+
+// if (movie != null) {
+//   res.json(movie);
+// } else {
+//   res.status(404).send("Not Found");
+// }
 
 module.exports = {
-  getMovies,
-  getMovieById,
+	getMovies,
+	getMovieById,
+	postMovie,
 };
